@@ -1,0 +1,126 @@
+<!doctype html>
+<html>
+<head>
+<style>
+#Poem_Element {
+font-family: sans-serif;
+padding: 20px;
+}
+</style>
+</head>
+<body>
+<div id="Poem_Element"></div>
+<script>
+let Poem_Element = document.querySelector("#Poem_Element");
+
+let Text_1 = `We are gardeners
+My men and I
+We came to the land
+And we nurtured its weeds
+We do everything for our flowers
+And yet they hurt us
+They prick us with their spears
+So out we've pulled some
+But a few live on
+And as time wanders
+They say we need to apologize
+To the monstrosity we made them
+So we will do so
+And they will whine
+But it does not matter
+Because they're ours at the end of the day.`;
+
+let Text_2 = `The ancient ones reside among us
+Elusive in the skies
+Yet whitefellas grip obscures our eyes
+Erasing vibrant hues.
+
+The Rainbow Serpent, spirit of water
+Not bound by human constructs
+Through country, his majestic presence rains
+Yet reduced to a mere tale at a whitefella's retreat
+
+Revive the ancient dances
+They say
+So we dance and they clap
+And all seems gay
+
+On this tangled web
+We seek the ancient ways
+To honor the spirits,
+
+Today
+We are always given the wrong spirits.`;
+
+function Generate_String_Replacements(Text_1, Text_2) {
+  let String_Replacements = [];
+  let Words_1 = Text_1.split(' ');
+  let Words_2 = Text_2.split(' ');
+
+  // Determine the maximum length of the two texts
+  let Maximum_Length_Of_Text_1_And_Text_2 = Math.max(Words_1.length, Words_2.length);
+
+  for (let Word_Iterator = 0; Word_Iterator < Maximum_Length_Of_Text_1_And_Text_2; ++Word_Iterator) {
+    const Current_Word_In_Text_1 = Words_1[Word_Iterator] || ''; // Handle out-of-bounds index
+    const Corresponding_Word_In_Text_2 = Words_2[Word_Iterator] || ''; // Handle out-of-bounds index
+
+    if (Current_Word_In_Text_1 !== Corresponding_Word_In_Text_2) {
+      String_Replacements.push({ From: Word_Iterator, To: Corresponding_Word_In_Text_2 });
+      Words_1[Word_Iterator] = Corresponding_Word_In_Text_2;
+    }
+  }
+
+  // Shuffle the string replacements randomly
+  for (let i = String_Replacements.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [String_Replacements[i], String_Replacements[j]] = [String_Replacements[j], String_Replacements[i]];
+  }
+
+  return String_Replacements;
+}
+
+let String_Replacements = Generate_String_Replacements(Text_1, Text_2);
+
+function Run_Replacements_Animations () {
+  Poem_Element.innerHTML = Text_1.replaceAll('\n', '<br>');
+  const Interval_Between_Animations = 250; // Interval between replacements
+
+  function Run_Word_Replacement_Animation () {
+    if (String_Replacements.length === 0) {
+      Poem_Element.innerHTML = Text_2.replaceAll('\n', '<br>');
+      return; // No more replacements to perform
+    }
+
+    const Current_String_Replacement = String_Replacements.shift(); // Get the next replacement and remove it from the array
+
+    let Words = Text_1.split(" ");
+    Words[Current_String_Replacement.From] = '#'.repeat(Current_String_Replacement.To.length);
+    Text_1 = Words.join(" ");
+
+    for (let Character_Iterator = 0; Character_Iterator < Current_String_Replacement.To.length; ++Character_Iterator) {
+      const Current_Character = Current_String_Replacement.To[Character_Iterator];
+      setTimeout(function Type_In_Characters() {
+        Text_1 = Text_1.replace('#', Current_Character);
+        Poem_Element.innerHTML = Text_1.replaceAll('#', '').replaceAll('\n', '<br>');
+      }, (Character_Iterator + 1) * Interval_Between_Animations);
+    }
+
+    setTimeout(function () {
+      let Words = Text_1.split(" ");
+      Words[Current_String_Replacement.From] = Current_String_Replacement.To;
+      Text_1 = Words.join(" ");
+
+      Run_Word_Replacement_Animation (); // Call recursively for the next replacement
+    }, (Current_String_Replacement.To.length + 1) * Interval_Between_Animations);
+  }
+
+  Run_Word_Replacement_Animation ();
+}
+
+Run_Replacements_Animations();
+
+
+
+</script>
+</body>
+</html>
